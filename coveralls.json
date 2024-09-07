@@ -1,0 +1,14 @@
+{
+  "coverage_options": {
+      "treat_no_relevant_lines_as_covered": true,
+      "minimum_coverage": 85.0
+  },
+  "terminal_options": {
+      "print_files": false
+  },
+  "skip_files": [
+      "deps",
+      "test",
+      "lib/desafio_cli.ex"
+  ]
+}

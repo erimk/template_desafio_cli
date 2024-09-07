@@ -20,7 +20,7 @@ defmodule DesafioCli.Handler do
         bool = bool |> Atom.to_string() |> String.upcase()
         IO.puts("#{bool} #{value}")
 
-      _ ->
+      :error ->
         IO.puts("ERR <503>")
     end
 

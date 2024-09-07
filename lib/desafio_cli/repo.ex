@@ -5,7 +5,7 @@ defmodule DesafioCli.Repo do
 
   def init_table, do: :dets.open_file(:a0, type: :set)
 
-  @spec upsert(atom(), atom(), value()) :: value() | :error
+  @spec upsert(atom(), atom(), value()) :: {atom(), String.t(), value()} | :error
   def upsert(:a0, key, value) do
     case :dets.insert_new(:a0, {key, value}) do
       true -> {false, key, value}
@@ -15,17 +15,12 @@ defmodule DesafioCli.Repo do
   end
 
   def upsert(table, key, value) do
-    # if :ets.insert_new(table, {key, value}) == true,
-    #   do: {false, key, value},
-    #   else: {true, key, value}
-
-    case :ets.insert_new(table, {key, value}) do
-      true -> {false, key, value}
-      false -> {true, key, value}
-    end
+    if :ets.insert_new(table, {key, value}) == true,
+      do: {false, key, value},
+      else: {true, key, value}
   end
 
-  @spec select(atom(), String.t()) :: value()
+  @spec select(atom(), String.t()) :: value() | nil
   def select(:a0, key) do
     case :dets.lookup(:a0, key) do
       [] -> nil
