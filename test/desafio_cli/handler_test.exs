@@ -55,17 +55,16 @@ defmodule DesafioCli.HandlerTest do
       assert subject =~ "NIL"
       assert :dets.delete_all_objects(table)
     end
-
   end
 
   describe "begin/1" do
     test "returns transactions number", %{table: table} do
-
-      subject = capture_io(fn ->
-        table
-        |> Handler.begin()
-        |> Handler.begin()
-      end)
+      subject =
+        capture_io(fn ->
+          table
+          |> Handler.begin()
+          |> Handler.begin()
+        end)
 
       assert subject =~ "1"
       assert subject =~ "2"
@@ -75,115 +74,121 @@ defmodule DesafioCli.HandlerTest do
 
   describe "rollback/1" do
     test "returns valid data after rollback", %{table: table} do
-      subject = capture_io(fn ->
-        table
-        |> Handler.get(["GET","teste"])
-        |> Handler.begin()
-        |> Handler.set(["SET","teste",1])
-        |> Handler.get(["GET","teste"])
-        |> Handler.rollback()
-        |> Handler.get(["GET","teste"])
-      end)
+      subject =
+        capture_io(fn ->
+          table
+          |> Handler.get(["GET", "teste"])
+          |> Handler.begin()
+          |> Handler.set(["SET", "teste", 1])
+          |> Handler.get(["GET", "teste"])
+          |> Handler.rollback()
+          |> Handler.get(["GET", "teste"])
+        end)
 
-      assert subject =~  "NIL\n1\nFALSE 1\n1\n0\nNIL\n"
+      assert subject =~ "NIL\n1\nFALSE 1\n1\n0\nNIL\n"
       assert :dets.delete_all_objects(table)
     end
 
     test "returns valid data with recursive rollback", %{table: table} do
-      subject = capture_io(fn ->
-        table
-        |> Handler.get(["GET","teste"])
-        |> Handler.begin()
-        |> Handler.set(["SET","teste",1])
-        |> Handler.get(["GET","teste"])
-        |> Handler.begin()
-        |> Handler.set(["SET","foo", "bar"])
-        |> Handler.set(["SET","bar", "baz"])
-        |> Handler.get(["GET","foo"])
-        |> Handler.get(["GET","bar"])
-        |> Handler.rollback()
-        |> Handler.get(["GET","foo"])
-        |> Handler.get(["GET","bar"])
-        |> Handler.get(["GET","teste"])
-      end)
+      subject =
+        capture_io(fn ->
+          table
+          |> Handler.get(["GET", "teste"])
+          |> Handler.begin()
+          |> Handler.set(["SET", "teste", 1])
+          |> Handler.get(["GET", "teste"])
+          |> Handler.begin()
+          |> Handler.set(["SET", "foo", "bar"])
+          |> Handler.set(["SET", "bar", "baz"])
+          |> Handler.get(["GET", "foo"])
+          |> Handler.get(["GET", "bar"])
+          |> Handler.rollback()
+          |> Handler.get(["GET", "foo"])
+          |> Handler.get(["GET", "bar"])
+          |> Handler.get(["GET", "teste"])
+        end)
 
-      assert subject =~  """
-      NIL
-      1
-      FALSE 1
-      1
-      2
-      FALSE bar
-      FALSE baz
-      bar
-      baz
-      1
-      NIL
-      NIL
-      1
-      """
+      assert subject =~ """
+             NIL
+             1
+             FALSE 1
+             1
+             2
+             FALSE bar
+             FALSE baz
+             bar
+             baz
+             1
+             NIL
+             NIL
+             1
+             """
+
       assert :dets.delete_all_objects(table)
     end
   end
 
   describe "commit/1" do
     test "returns valid data with commit", %{table: table} do
-      subject = capture_io(fn ->
-        table
-        |> Handler.get(["GET","teste"])
-        |> Handler.begin()
-        |> Handler.set(["SET","teste",1])
-        |> Handler.get(["GET","teste"])
-        |> Handler.commit()
-        |> Handler.get(["GET","teste"])
-      end)
+      subject =
+        capture_io(fn ->
+          table
+          |> Handler.get(["GET", "teste"])
+          |> Handler.begin()
+          |> Handler.set(["SET", "teste", 1])
+          |> Handler.get(["GET", "teste"])
+          |> Handler.commit()
+          |> Handler.get(["GET", "teste"])
+        end)
 
-      assert subject =~  "NIL\n1\nFALSE 1\n1\n0\n1\n"
+      assert subject =~ "NIL\n1\nFALSE 1\n1\n0\n1\n"
       assert :dets.delete_all_objects(table)
     end
 
     test "returns valid data with recursive commit", %{table: table} do
-      subject = capture_io(fn ->
-        table
-        |> Handler.get(["GET","teste"])
-        |> Handler.begin()
-        |> Handler.set(["SET","teste",1])
-        |> Handler.get(["GET","teste"])
-        |> Handler.begin()
-        |> Handler.set(["SET","foo","bar"])
-        |> Handler.set(["SET","bar","baz"])
-        |> Handler.get(["GET","foo"])
-        |> Handler.get(["GET","bar"])
-        |> Handler.commit()
-        |> Handler.get(["GET","foo"])
-        |> Handler.get(["GET","bar"])
-        |> Handler.get(["GET","teste"])
-        |> Handler.rollback()
-        |> Handler.get(["GET","teste"])
-        |> Handler.get(["GET","foo"])
-        |> Handler.get(["GET","bar"])
-      end)
+      subject =
+        capture_io(fn ->
+          table
+          |> Handler.get(["GET", "teste"])
+          |> Handler.begin()
+          |> Handler.set(["SET", "teste", 1])
+          |> Handler.get(["GET", "teste"])
+          |> Handler.begin()
+          |> Handler.set(["SET", "foo", "bar"])
+          |> Handler.set(["SET", "bar", "baz"])
+          |> Handler.get(["GET", "foo"])
+          |> Handler.get(["GET", "bar"])
+          |> Handler.commit()
+          |> Handler.get(["GET", "foo"])
+          |> Handler.get(["GET", "bar"])
+          |> Handler.get(["GET", "teste"])
+          |> Handler.rollback()
+          |> Handler.get(["GET", "teste"])
+          |> Handler.get(["GET", "foo"])
+          |> Handler.get(["GET", "bar"])
+        end)
 
       assert subject =~
-        """
-        NIL
-        1
-        FALSE 1
-        1
-        2
-        FALSE bar
-        FALSE baz
-        bar
-        baz
-        1
-        bar
-        baz
-        1
-        0
-        NIL
-        NIL
-        NIL
-        """
+               """
+               NIL
+               1
+               FALSE 1
+               1
+               2
+               FALSE bar
+               FALSE baz
+               bar
+               baz
+               1
+               bar
+               baz
+               1
+               0
+               NIL
+               NIL
+               NIL
+               """
+
       assert :dets.delete_all_objects(table)
     end
   end

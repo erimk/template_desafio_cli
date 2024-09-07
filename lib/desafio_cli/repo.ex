@@ -63,7 +63,8 @@ defmodule DesafioCli.Repo do
       :a0 ->
         # :dets.foldl(fn {key, value}, _ -> :dets.insert(:a0, {key, value}) end, nil, table)
         :ets.to_dets(table, :a0)
-        # :a0
+
+      # :a0
 
       old_table ->
         :ets.foldl(fn {key, value}, _ -> :ets.insert(old_table, {key, value}) end, nil, table)

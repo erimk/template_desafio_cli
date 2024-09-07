@@ -12,30 +12,27 @@ defmodule DesafioCli.MixProject do
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
-        "coveralls.html": :test,
+        "coveralls.html": :test
       ]
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger]
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
-      {:excoveralls, "~> 0.18", only: :test}
+      {:excoveralls, "~> 0.18", only: :test},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
   defp aliases do
     [
-      lint: ["format"],
+      lint: ["format", "credo --strict"],
       test: ["test --cover"]
     ]
   end
