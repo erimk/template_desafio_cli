@@ -14,24 +14,25 @@ defmodule DesafioCli.Repo do
     end
   end
 
+  @spec upsert(atom(), atom(), value()) :: {atom(), String.t(), value()} | :error
   def upsert(table, key, value) do
-    if :ets.insert_new(table, {key, value}) == true,
+    if :ets.insert_new(table, {key, value}),
       do: {false, key, value},
       else: {true, key, value}
   end
 
-  @spec select(atom(), String.t()) :: value() | nil
+  @spec select(atom(), String.t()) :: {:ok, value()} | {:error, :not_found}
   def select(:a0, key) do
     case :dets.lookup(:a0, key) do
-      [] -> nil
-      [{_, value}] -> value
+      [] -> {:error, :not_found}
+      [{_, value}] -> {:ok, value}
     end
   end
 
   def select(table, key) do
     case :ets.lookup(table, key) do
-      [] -> nil
-      [{_, value}] -> value
+      [] -> {:error, :not_found}
+      [{_, value}] -> {:ok, value}
     end
   end
 
@@ -50,21 +51,18 @@ defmodule DesafioCli.Repo do
     new_table
   end
 
-  def rollback(:a0), do: :error
+  def undo(:a0), do: {:error, :cant_rollback}
 
-  def rollback(table) do
+  def undo(table) do
     :ets.delete(table)
 
-    previous_name(table)
+    {:ok, previous_name(table)}
   end
 
-  def commit(table) do
+  def exec(table) do
     case previous_name(table) do
       :a0 ->
-        # :dets.foldl(fn {key, value}, _ -> :dets.insert(:a0, {key, value}) end, nil, table)
         :ets.to_dets(table, :a0)
-
-      # :a0
 
       old_table ->
         :ets.foldl(fn {key, value}, _ -> :ets.insert(old_table, {key, value}) end, nil, table)

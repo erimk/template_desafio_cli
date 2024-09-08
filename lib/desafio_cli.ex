@@ -25,7 +25,7 @@ defmodule DesafioCli do
       "ROLLBACK" -> Handler.rollback(table)
       "COMMIT" -> Handler.commit(table)
       "clean" -> Handler.clean(table)
-      _ -> Handler.fallback(table)
+      _ -> Handler.fallback(table, command)
     end
     |> menu()
   end

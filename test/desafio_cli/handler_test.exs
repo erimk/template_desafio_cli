@@ -55,6 +55,18 @@ defmodule DesafioCli.HandlerTest do
       assert subject =~ "NIL"
       assert :dets.delete_all_objects(table)
     end
+
+    test "returns syntax error", %{table: table} do
+      command = ["GET"]
+
+      subject = capture_io(fn -> Handler.get(table, command) end)
+
+      assert subject =~ """
+             ERR \"GET <chave> - Syntax error\"
+             """
+
+      assert :dets.delete_all_objects(table)
+    end
   end
 
   describe "begin/1" do
@@ -188,6 +200,74 @@ defmodule DesafioCli.HandlerTest do
                NIL
                NIL
                """
+
+      assert :dets.delete_all_objects(table)
+    end
+
+    test "returns error without begin", %{table: table} do
+      subject =
+        capture_io(fn ->
+          table
+          |> Handler.rollback()
+        end)
+
+      assert subject =~ "No transaction open to rollback."
+      assert :dets.delete_all_objects(table)
+    end
+  end
+
+  describe "fallback/2" do
+    test "returns erro message when fallback", %{table: table} do
+      command = ["TRY"]
+
+      subject =
+        capture_io(fn ->
+          table
+          |> Handler.fallback(command)
+        end)
+
+      assert subject =~ """
+             ERR \"No command TRY\"
+             """
+
+      assert :dets.delete_all_objects(table)
+    end
+
+    test "returns erro message when no command found", %{table: table} do
+      command = [""]
+
+      subject =
+        capture_io(fn ->
+          table
+          |> Handler.fallback(command)
+        end)
+
+      assert subject =~ """
+             ERR \"No command found.\"
+             """
+
+      assert :dets.delete_all_objects(table)
+    end
+  end
+
+  describe "clean/1" do
+    test "returns ok when clean data", %{table: table} do
+      key = "key"
+      value = 7
+      Repo.upsert(table, key, value)
+
+      subject =
+        capture_io(fn ->
+          table
+          |> Handler.get(["GET", key])
+          |> Handler.clean()
+          |> Handler.get(["GET", key])
+        end)
+
+      assert subject =~ """
+             #{value}
+             NIL
+             """
 
       assert :dets.delete_all_objects(table)
     end

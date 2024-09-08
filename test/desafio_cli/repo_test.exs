@@ -31,11 +31,11 @@ defmodule DesafioCli.RepoTest do
       value = 5
       Repo.upsert(table, :outro, value)
 
-      assert Repo.select(table, :outro) == value
+      assert Repo.select(table, :outro) == {:ok, value}
     end
 
-    test "returns nil when no key found", %{table: table} do
-      assert Repo.select(table, :vazio) == nil
+    test "returns error when no key found", %{table: table} do
+      assert Repo.select(table, :vazio) == {:error, :not_found}
     end
   end
 end
