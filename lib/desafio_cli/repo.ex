@@ -1,26 +1,41 @@
 defmodule DesafioCli.Repo do
-  @moduledoc "Repo"
+  @moduledoc """
 
+  """
   @type value :: String.t() | integer() | boolean()
 
+  @doc """
+  Create a dets table and returns it's name.
+  """
+  @spec init_table() :: {:ok, atom()} | {:erro, atom()}
   def init_table, do: :dets.open_file(:a0, type: :set)
 
-  @spec upsert(atom(), atom(), value()) :: {atom(), String.t(), value()} | :error
+  @doc """
+  Do the upsert of a key and a value in a given table.
+  The function define the value of a key. If the key never existed,
+  it must be created returning false. If the key already exists,
+  it will overwritten the new value and return true.
+  """
+  @spec upsert(atom(), any(), value()) :: {boolean(), String.t(), value()} | :error
   def upsert(:a0, key, value) do
     case :dets.insert_new(:a0, {key, value}) do
       true -> {false, key, value}
       false -> {true, key, value}
-      _ -> :error
     end
+  rescue
+    _ -> :error
   end
 
-  @spec upsert(atom(), atom(), value()) :: {atom(), String.t(), value()} | :error
   def upsert(table, key, value) do
     if :ets.insert_new(table, {key, value}),
       do: {false, key, value},
       else: {true, key, value}
   end
 
+  @doc """
+  Search for the value of a key in a given table name.
+  Returns the value if found or an error if not found.
+  """
   @spec select(atom(), String.t()) :: {:ok, value()} | {:error, :not_found}
   def select(:a0, key) do
     case :dets.lookup(:a0, key) do
@@ -36,6 +51,11 @@ defmodule DesafioCli.Repo do
     end
   end
 
+  @doc """
+  Begins a new transaction creating a new ets table with the exiting values of a given table.
+  Returns the new table name.
+  """
+  @spec transaction(atom()) :: atom()
   def transaction(table) do
     new_name = next_name(table)
     new_table = :ets.new(new_name, [:set, :named_table])
@@ -51,6 +71,11 @@ defmodule DesafioCli.Repo do
     new_table
   end
 
+  @doc """
+  Cancels a transaction deleting the created ets table.
+  Returns the previous table name
+  """
+  @spec undo(atom()) :: {:ok, atom()} | {:error, :cant_rollback}
   def undo(:a0), do: {:error, :cant_rollback}
 
   def undo(table) do
@@ -59,6 +84,11 @@ defmodule DesafioCli.Repo do
     {:ok, previous_name(table)}
   end
 
+  @doc """
+  Confirm the open transaction, mergint all the values in the previous table.
+  Returns the previous table name.
+  """
+  @spec exec(atom()) :: atom()
   def exec(table) do
     case previous_name(table) do
       :a0 ->
@@ -70,21 +100,21 @@ defmodule DesafioCli.Repo do
     end
   end
 
-  def next_name(name) do
+  defp next_name(name) do
     [_, number] = name |> Atom.to_string() |> String.split("a")
     next = String.to_integer(number) + 1
 
     to_atom("a#{next}")
   end
 
-  def previous_name(name) do
+  defp previous_name(name) do
     [_, number] = name |> Atom.to_string() |> String.split("a")
     previous = String.to_integer(number) - 1
 
     to_atom("a#{previous}")
   end
 
-  def to_atom(str) do
+  defp to_atom(str) do
     String.to_existing_atom(str)
   rescue
     _ -> String.to_atom(str)

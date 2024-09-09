@@ -32,6 +32,25 @@ defmodule DesafioCli.HandlerTest do
       assert subject =~ "TRUE 9"
       assert :dets.delete_all_objects(table)
     end
+
+    test "returns error when wrong command input", %{table: table} do
+      command = ["SET"]
+
+      subject = capture_io(fn -> Handler.set(table, command) end)
+
+      assert subject =~ "SET <chave> <valor>"
+    end
+
+    test "returns error when exception occurs", %{table: table} do
+      Mimic.copy(Repo)
+      Mimic.expect(Repo, :upsert, fn _, _, _ -> :error end)
+
+      command = ["SET", "test", 1]
+
+      subject = capture_io(fn -> Handler.set(table, command) end)
+
+      assert subject =~ "ERR SET error"
+    end
   end
 
   describe "get/2" do

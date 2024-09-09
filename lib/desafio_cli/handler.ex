@@ -1,6 +1,7 @@
 defmodule DesafioCli.Handler do
   @moduledoc """
   Handler of commands.
+  All public functions here are designed to receive table, handle it and return the handled table.
   """
 
   alias DesafioCli.Repo
@@ -24,7 +25,7 @@ defmodule DesafioCli.Handler do
         table
 
       {:error, :wrong_input} ->
-        IO.puts("ERR \"SET <chave> <valor> - Syntax error\"")
+        IO.puts(~s(ERR "SET <chave> <valor> - Syntax error"))
         table
     end
 
@@ -58,6 +59,7 @@ defmodule DesafioCli.Handler do
     new_table
   end
 
+  @spec rollback(atom()) :: atom()
   def rollback(table) do
     case Repo.undo(table) do
       {:ok, previous_table} ->
@@ -73,6 +75,7 @@ defmodule DesafioCli.Handler do
     end
   end
 
+  @spec commit(atom()) :: atom()
   def commit(table) do
     commited_table = Repo.exec(table)
     [_, number] = commited_table |> Atom.to_string() |> String.split("a")
@@ -87,6 +90,7 @@ defmodule DesafioCli.Handler do
     table
   end
 
+  @spec fallback(atom(),[]) :: atom()
   def fallback(table, [""]) do
     IO.puts("ERR \"No command found.\"")
     table

@@ -24,6 +24,14 @@ defmodule DesafioCli.RepoTest do
       assert Repo.upsert(table, :test, 3) == {true, :test, 3}
       assert :dets.delete_all_objects(table)
     end
+
+    test "returns TRUE and a value when already set on a ETS" do
+      new_table = :ets.new(:t1, [:set, :named_table])
+      Repo.upsert(new_table, :test, 2)
+
+      assert Repo.upsert(new_table, :test, 3) == {true, :test, 3}
+      assert :ets.delete_all_objects(new_table)
+    end
   end
 
   describe "get/2" do

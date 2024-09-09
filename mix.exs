@@ -26,7 +26,8 @@ defmodule DesafioCli.MixProject do
   defp deps do
     [
       {:excoveralls, "~> 0.18", only: :test},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:mimic, "~> 1.10", only: :test}
     ]
   end
 
