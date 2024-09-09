@@ -18,18 +18,29 @@ defmodule DesafioCli.Repo do
   """
   @spec upsert(atom(), any(), value()) :: {boolean(), String.t(), value()} | :error
   def upsert(:a0, key, value) do
-    case :dets.insert_new(:a0, {key, value}) do
-      true -> {false, key, value}
-      false -> {true, key, value}
+    case select(:a0, key) do
+      {:ok, _value} ->
+        :ok = :dets.insert(:a0, {key, value})
+        {true, key, value}
+
+      {:error, :not_found} ->
+        :ok = :dets.insert(:a0, {key, value})
+        {false, key, value}
     end
   rescue
     _ -> :error
   end
 
   def upsert(table, key, value) do
-    if :ets.insert_new(table, {key, value}),
-      do: {false, key, value},
-      else: {true, key, value}
+    case select(table, key) do
+      {:ok, _value} ->
+        :ets.insert(table, {key, value})
+        {true, key, value}
+
+      {:error, :not_found} ->
+        :ets.insert(table, {key, value})
+        {false, key, value}
+    end
   end
 
   @doc """
