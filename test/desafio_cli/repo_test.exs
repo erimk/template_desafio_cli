@@ -21,7 +21,12 @@ defmodule DesafioCli.RepoTest do
 
     test "returns TRUE and a value when already set", %{table: table} do
       Repo.upsert(table, :test, 2)
-      assert Repo.upsert(table, :test, 3) == {true, :test, 3}
+      assert Repo.upsert(table, :test, true) == {true, :test, true}
+      assert :dets.delete_all_objects(table)
+    end
+
+    test "returns ok with phrase value", %{table: table} do
+      assert Repo.upsert(table, :test1, "hello world") == {false, :test1, "hello world"}
       assert :dets.delete_all_objects(table)
     end
 

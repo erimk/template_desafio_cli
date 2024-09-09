@@ -18,7 +18,7 @@ defmodule DesafioCli.Handler do
     with {:ok, key, value} <- take_key_value(command),
          {bool, _key, value} <- Repo.upsert(table, key, value) do
       bool = bool |> Atom.to_string() |> String.upcase()
-      IO.puts("#{bool} #{value}")
+      IO.puts("#{bool} #{format_bool(value)}")
     else
       :error ->
         IO.puts("ERR SET error")
@@ -36,7 +36,7 @@ defmodule DesafioCli.Handler do
   def get(table, command) do
     with {:ok, key} <- take_key(command),
          {:ok, value} <- Repo.select(table, key) do
-      IO.puts("#{value}")
+      IO.puts("#{format_bool(value)}")
     else
       {:error, :not_found} ->
         IO.puts("NIL")
@@ -90,7 +90,7 @@ defmodule DesafioCli.Handler do
     table
   end
 
-  @spec fallback(atom(),[]) :: atom()
+  @spec fallback(atom(), list()) :: atom()
   def fallback(table, [""]) do
     IO.puts("ERR \"No command found.\"")
     table
@@ -100,4 +100,7 @@ defmodule DesafioCli.Handler do
     IO.puts("ERR \"No command #{command}\"")
     table
   end
+
+  defp format_bool(var) when is_boolean(var), do: to_string(var) |> String.upcase()
+  defp format_bool(var), do: var
 end

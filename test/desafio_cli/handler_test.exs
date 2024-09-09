@@ -5,6 +5,7 @@ defmodule DesafioCli.HandlerTest do
 
   alias DesafioCli.Handler
   alias DesafioCli.Repo
+  alias DesafioCli.Utils
 
   setup do
     {:ok, table} = Repo.init_table()
@@ -41,6 +42,18 @@ defmodule DesafioCli.HandlerTest do
       assert subject =~ "SET <chave> <valor>"
     end
 
+    test "returns ok with phrase value", %{table: table} do
+      command = Utils.get_command("SET chv \"hello world\"")
+
+      subject =
+        capture_io(fn ->
+          table
+          |> Handler.set(command)
+        end)
+
+      assert subject =~ "FALSE \"hello world\"\n"
+    end
+
     test "returns error when exception occurs", %{table: table} do
       Mimic.copy(Repo)
       Mimic.expect(Repo, :upsert, fn _, _, _ -> :error end)
@@ -75,15 +88,23 @@ defmodule DesafioCli.HandlerTest do
       assert :dets.delete_all_objects(table)
     end
 
-    test "returns syntax error", %{table: table} do
+    test "returns syntax error when incomplete command", %{table: table} do
       command = ["GET"]
 
       subject = capture_io(fn -> Handler.get(table, command) end)
 
-      assert subject =~ """
-             ERR \"GET <chave> - Syntax error\"
-             """
+      assert subject =~ "ERR \"GET <chave> - Syntax error\""
+      assert :dets.delete_all_objects(table)
+    end
 
+    test "returns format boolean when value is boolean", %{table: table} do
+      key = "chave"
+      Repo.upsert(table, key, true)
+      command = ["GET", key]
+
+      subject = capture_io(fn -> Handler.get(table, command) end)
+
+      assert subject =~ "TRUE"
       assert :dets.delete_all_objects(table)
     end
   end
@@ -239,16 +260,9 @@ defmodule DesafioCli.HandlerTest do
     test "returns erro message when fallback", %{table: table} do
       command = ["TRY"]
 
-      subject =
-        capture_io(fn ->
-          table
-          |> Handler.fallback(command)
-        end)
+      subject = capture_io(fn -> Handler.fallback(table, command) end)
 
-      assert subject =~ """
-             ERR \"No command TRY\"
-             """
-
+      assert subject =~ "ERR \"No command TRY\""
       assert :dets.delete_all_objects(table)
     end
 

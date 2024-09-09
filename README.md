@@ -1,6 +1,6 @@
 # Template para Desafio CLI
 
-Este template tem o objetivo de servir como 
+Este template tem o objetivo de servir como
 ponto de partida para a implementação de desafios
 de contratação da Cumbuca que envolvam implementar
 uma interface de linha de comando em Elixir.
@@ -14,3 +14,5 @@ Com o Elixir instalado, você terá a ferramenta de build `mix`.
 Para buildar o projeto, use o comando `mix escript.build` nesta pasta.
 Isso irá gerar um binário com o mesmo nome do projeto na pasta.
 Executando o binário, sua CLI será executada.
+
+Buildar e rodar: `mix escript.build && ./desafio_cli`

@@ -3,6 +3,7 @@ defmodule DesafioCli do
   Ponto de entrada para a CLI.
   """
   alias DesafioCli.Handler
+  alias DesafioCli.Utils
 
   @doc """
   A função main recebe os argumentos passados na linha de
@@ -15,8 +16,7 @@ defmodule DesafioCli do
   end
 
   def menu(table) do
-    input = IO.gets("> ") |> String.trim()
-    command = String.split(input, " ")
+    command = IO.gets("> ") |> Utils.get_command()
 
     case hd(command) do
       "SET" -> Handler.set(table, command)
